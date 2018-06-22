@@ -1,0 +1,132 @@
+package operation
+
+import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/binary"
+	"errors"
+	"io"
+
+	"github.com/ulule/ancre/tag"
+	"golang.org/x/crypto/ripemd160"
+)
+
+// MAX_OP_LENGTH is the maximum length of byte array
+// used to describe operation.
+const MAX_OP_LENGTH = 4096
+
+// Op is the type of an operation done on a timestamp.
+type Op struct {
+	Tag          []byte
+	DigestLength int
+	Apply        func([]byte) []byte
+}
+
+// Exec execute the operation
+func (o Op) Exec(input []byte) []byte {
+	return o.Apply(input)
+}
+
+// Length returns the operation lenght
+func (o Op) Length() int {
+	return o.DigestLength
+}
+
+// Encode serializes the Op
+func (o Op) Encode() []byte {
+	return o.Tag
+}
+
+func (o Op) Match(b []byte) bool {
+	return len(o.Tag) != 0 && bytes.Equal(o.Tag[:1], b)
+}
+
+func DecodeOp(r io.Reader) (*Op, error) {
+	t, err := tag.GetByte(r)
+	if err != nil {
+		return nil, err
+	}
+	return Decode(r, t)
+}
+
+func Decode(r io.Reader, t byte) (*Op, error) {
+	switch t {
+	case tag.Sha256:
+		return NewOpSha256(), nil
+	case tag.Ripemd160:
+		return NewOpRipemd160(), nil
+	case tag.Append:
+		return NewOpAppend(r)
+	case tag.Prepend:
+		return NewOpPrepend(r)
+	}
+	return nil, errors.New("operation does not exist")
+}
+
+// NewOpSha256 is the sha256 operation checkSum.
+func NewOpSha256() *Op {
+	return &Op{[]byte{tag.Sha256}, 32, func(data []byte) []byte {
+		b := sha256.Sum256(data)
+		return b[:]
+	}}
+}
+
+// NewOpRipemd160 is the sha256 operation checkSum.
+// golang/x/crypto Ripemd160 does not return error,
+// Output of hash.Write can be ignored.
+func NewOpRipemd160() *Op {
+	return &Op{[]byte{tag.Ripemd160}, 20, func(data []byte) []byte {
+		hash := ripemd160.New()
+		hash.Write(data)
+		return hash.Sum(nil)
+	}}
+}
+
+// NewOpAppend append a byte array to the byte array.
+func NewOpAppend(r io.Reader) (*Op, error) {
+	data, err := readData(r)
+	if err != nil {
+		return nil, err
+	}
+
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, uint64(len(data)))
+
+	t := append([]byte{tag.Append}, b...)
+
+	return &Op{append(t, data...), 32, func(input []byte) []byte {
+		return append(input, data...)
+	}}, nil
+}
+
+// NewOpPrepend append a byte array at the end of the byte array.
+func NewOpPrepend(r io.Reader) (*Op, error) {
+	data, err := readData(r)
+	if err != nil {
+		return nil, err
+	}
+
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, uint64(len(data)))
+
+	t := append([]byte{tag.Append}, b...)
+
+	return &Op{append(t, data...), 32, func(input []byte) []byte {
+		return append(data, input...)
+	}}, nil
+}
+
+func readData(r io.Reader) ([]byte, error) {
+	n, err := tag.ReadUInt64(r)
+	if err != nil {
+		return nil, err
+	}
+
+	if n > MAX_OP_LENGTH {
+		return nil, errors.New("Input too long for binary operation ")
+	}
+
+	data := make([]byte, n)
+	_, err = r.Read(data)
+	return data, err
+}

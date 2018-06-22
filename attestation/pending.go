@@ -1,0 +1,56 @@
+package attestation
+
+import (
+	"bytes"
+	"encoding/hex"
+	"errors"
+	"io"
+
+	"github.com/ulule/ancre/tag"
+)
+
+type Pending struct {
+	uri   string
+	input []byte
+}
+
+// Encode encodes the Attestation
+func (b Pending) Encode() []byte {
+	return append(PENDING_TAG, []byte(b.uri)...)
+}
+
+// Deser deserializes the Attestation
+func (p Pending) Match(b []byte) bool {
+	return bytes.Equal(PENDING_TAG, b)
+}
+
+func (p Pending) Input() []byte {
+	return p.input
+}
+
+func (p Pending) Data() map[string]interface{} {
+	return map[string]interface{}{
+		"uri":    p.uri,
+		"input":  hex.EncodeToString(p.input),
+		"entity": "pending",
+	}
+}
+
+func NewAttestPending(r io.Reader, input []byte) (Attestation, error) {
+	length, err := tag.ReadUInt64(r)
+	if err != nil {
+		return nil, err
+	}
+
+	if length > URI_MAX_LENGTH {
+		return nil, errors.New("Attestation pending has a too loog uri length")
+	}
+
+	uri := make([]byte, length)
+	_, err = r.Read(uri)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Pending{uri: string(uri), input: input}, nil
+}
