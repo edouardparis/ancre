@@ -3,7 +3,6 @@ package operation
 import (
 	"bytes"
 	"crypto/sha256"
-	"encoding/binary"
 	"errors"
 	"io"
 
@@ -89,12 +88,23 @@ func NewOpAppend(r io.Reader) (*Op, error) {
 		return nil, err
 	}
 
-	b := make([]byte, 8)
-	binary.LittleEndian.PutUint64(b, uint64(len(data)))
+	var b bytes.Buffer
+	_, err = b.Write([]byte{tag.Append})
+	if err != nil {
+		return nil, err
+	}
 
-	t := append([]byte{tag.Append}, b...)
+	err = tag.WriteUint64(&b, uint64(len(data)))
+	if err != nil {
+		return nil, err
+	}
 
-	return &Op{append(t, data...), 32, func(input []byte) []byte {
+	_, err = b.Write(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Op{b.Bytes(), 32, func(input []byte) []byte {
 		return append(input, data...)
 	}}, nil
 }
@@ -106,12 +116,23 @@ func NewOpPrepend(r io.Reader) (*Op, error) {
 		return nil, err
 	}
 
-	b := make([]byte, 8)
-	binary.LittleEndian.PutUint64(b, uint64(len(data)))
+	var b bytes.Buffer
+	_, err = b.Write([]byte{tag.Prepend})
+	if err != nil {
+		return nil, err
+	}
 
-	t := append([]byte{tag.Append}, b...)
+	err = tag.WriteUint64(&b, uint64(len(data)))
+	if err != nil {
+		return nil, err
+	}
 
-	return &Op{append(t, data...), 32, func(input []byte) []byte {
+	_, err = b.Write(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Op{b.Bytes(), 32, func(input []byte) []byte {
 		return append(data, input...)
 	}}, nil
 }

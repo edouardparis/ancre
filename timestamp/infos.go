@@ -51,7 +51,7 @@ func DisplayOperation(w io.Writer, step *Step) error {
 
 	operations := map[byte]string{
 		tag.Sha256:    "SHA256()\n",
-		tag.Ripemd160: "SHA256()\n",
+		tag.Ripemd160: "RIPEMD160()\n",
 		tag.Append:    fmt.Sprintf("Append(%s)\n", hex.EncodeToString(step.Data.Encode()[1:])),
 		tag.Prepend:   fmt.Sprintf("Prepend(%s)\n", hex.EncodeToString(step.Data.Encode()[1:])),
 	}
