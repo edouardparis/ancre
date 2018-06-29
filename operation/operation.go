@@ -6,13 +6,20 @@ import (
 	"errors"
 	"io"
 
-	"github.com/ulule/ancre/tag"
 	"golang.org/x/crypto/ripemd160"
+
+	"github.com/ulule/ancre/tag"
 )
 
 // MAX_OP_LENGTH is the maximum length of byte array
 // used to describe operation.
 const MAX_OP_LENGTH = 4096
+
+type Operation interface {
+	Encode() []byte
+	Match([]byte) bool
+	Exec(input []byte) []byte
+}
 
 // Op is the type of an operation done on a timestamp.
 type Op struct {

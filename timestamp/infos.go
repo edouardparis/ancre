@@ -7,6 +7,7 @@ import (
 	"io"
 
 	"github.com/ulule/ancre/attestation"
+	"github.com/ulule/ancre/operation"
 	"github.com/ulule/ancre/tag"
 )
 
@@ -39,6 +40,11 @@ func DisplayStep(w io.Writer, t *Timestamp, step *Step) error {
 }
 
 func DisplayOperation(w io.Writer, step *Step) error {
+	op, ok := step.Data.(operation.Operation)
+	if !ok {
+		return errors.New("step is not an operation")
+	}
+
 	_, err := w.Write([]byte("execute "))
 	if err != nil {
 		return err
@@ -52,17 +58,27 @@ func DisplayOperation(w io.Writer, step *Step) error {
 	operations := map[byte]string{
 		tag.Sha256:    "SHA256()\n",
 		tag.Ripemd160: "RIPEMD160()\n",
-		tag.Append:    fmt.Sprintf("Append(%s)\n", hex.EncodeToString(step.Data.Encode()[1:])),
-		tag.Prepend:   fmt.Sprintf("Prepend(%s)\n", hex.EncodeToString(step.Data.Encode()[1:])),
 	}
 
 	for t := range operations {
-		if step.Data.Match([]byte{t}) {
+		if op.Match([]byte{t}) {
 			_, err = w.Write([]byte(operations[t]))
-			if err != nil {
-				return err
-			}
+			break
 		}
+	}
+
+	if op.Match([]byte{tag.Append}) {
+		argument := hex.EncodeToString(op.Exec(nil))
+		_, err = w.Write([]byte(fmt.Sprintf("Append(%s)\n", argument)))
+	}
+
+	if op.Match([]byte{tag.Prepend}) {
+		argument := hex.EncodeToString(op.Exec(nil))
+		_, err = w.Write([]byte(fmt.Sprintf("Prepend(%s)\n", argument)))
+	}
+
+	if err != nil {
+		return err
 	}
 
 	result := fmt.Sprintf("result: %s\n", hex.EncodeToString(step.Output))
