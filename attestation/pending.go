@@ -15,8 +15,17 @@ type Pending struct {
 }
 
 // Encode encodes the Attestation
-func (b Pending) Encode() []byte {
-	return append(PENDING_TAG, []byte(b.uri)...)
+func (p Pending) Encode() []byte {
+	buf := new(bytes.Buffer)
+	buf.Write([]byte{tag.Attestation})
+	buf.Write(BITCOIN_TAG)
+
+	tmp := new(bytes.Buffer)
+	n, _ := tmp.WriteString(p.uri)
+
+	tag.WriteUint64(buf, uint64(n))
+	buf.Write(tmp.Bytes())
+	return buf.Bytes()
 }
 
 // Deser deserializes the Attestation
