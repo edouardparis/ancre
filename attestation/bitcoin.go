@@ -2,7 +2,6 @@ package attestation
 
 import (
 	"bytes"
-	"encoding/binary"
 	"encoding/hex"
 	"io"
 
@@ -16,8 +15,14 @@ type Bitcoin struct {
 
 func (b Bitcoin) Encode() []byte {
 	buf := new(bytes.Buffer)
+	buf.Write([]byte{tag.Attestation})
 	buf.Write(BITCOIN_TAG)
-	binary.Write(buf, binary.LittleEndian, b.height)
+
+	tmp := new(bytes.Buffer)
+	n, _ := tag.WriteUint64(tmp, b.height)
+
+	tag.WriteUint64(buf, uint64(n))
+	buf.Write(tmp.Bytes())
 	return buf.Bytes()
 }
 

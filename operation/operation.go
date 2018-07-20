@@ -101,7 +101,7 @@ func NewOpAppend(r io.Reader) (*Op, error) {
 		return nil, err
 	}
 
-	err = tag.WriteUint64(&b, uint64(len(data)))
+	_, err = tag.WriteUint64(&b, uint64(len(data)))
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func NewOpPrepend(r io.Reader) (*Op, error) {
 		return nil, err
 	}
 
-	err = tag.WriteUint64(&b, uint64(len(data)))
+	_, err = tag.WriteUint64(&b, uint64(len(data)))
 	if err != nil {
 		return nil, err
 	}

@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"testing"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/ulule/ancre/tag"
 )
 
@@ -62,6 +63,8 @@ func TestTimestampFileToWriter(t *testing.T) {
 	actual := buf.Bytes()
 	for i := range expected {
 		if expected[i] != actual[i] {
+			spew.Dump(hex.Dump(expected[i:]))
+			spew.Dump(hex.Dump(actual[i:]))
 			t.Errorf("Expected different byte at index %d", i)
 			break
 		}

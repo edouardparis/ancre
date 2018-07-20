@@ -51,25 +51,26 @@ func ReadUInt64(r io.Reader) (uint64, error) {
 	return 0, errors.New("UInt64 overflow")
 }
 
-func WriteUint64(w io.Writer, i uint64) error {
+func WriteUint64(w io.Writer, i uint64) (int, error) {
 	if i == 0 {
-		_, err := w.Write([]byte{0x00})
-		return err
+		return w.Write([]byte{0x00})
 	}
 
+	var total int
 	for i > 0 {
 		b := byte(i & 0x7f)
 		if i > uint64(0x7f) {
 			b |= 0x80
 		}
-		_, err := w.Write([]byte{b})
+		n, err := w.Write([]byte{b})
 		if err != nil {
-			return err
+			return total, err
 		}
+		total += n
 		if i <= 0x7f {
 			break
 		}
 		i >>= 7
 	}
-	return nil
+	return total, nil
 }
