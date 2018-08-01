@@ -158,3 +158,13 @@ func readData(r io.Reader) ([]byte, error) {
 	_, err = r.Read(data)
 	return data, err
 }
+
+type Fork struct{}
+
+func (f Fork) Match(b []byte) bool {
+	return bytes.Equal(b, []byte{tag.Fork})
+}
+
+func (f Fork) Encode() []byte {
+	return []byte{tag.Fork}
+}

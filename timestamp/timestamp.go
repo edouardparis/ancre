@@ -79,7 +79,7 @@ func (ts *Timestamp) DecodeStep(ctx context.Context, r io.Reader, input []byte, 
 		if err != nil {
 			return nil, err
 		}
-		return &Step{Output: input, Next: next}, nil
+		return &Step{Output: input, Data: operation.Fork{}, Next: next}, nil
 
 	default:
 		op, err := operation.Decode(r, *currentTag)
@@ -114,15 +114,6 @@ func EncodeRecursive(s *Step, w io.Writer) error {
 	_, err := w.Write(s.Data.Encode())
 	if err != nil {
 		return err
-	}
-
-	if len(s.Next) > 1 {
-		for i := 0; i < len(s.Next); i++ {
-			_, err := w.Write([]byte{tag.Fork})
-			if err != nil {
-				return err
-			}
-		}
 	}
 
 	for i := range s.Next {
