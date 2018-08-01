@@ -12,7 +12,7 @@ import (
 const RECURSION_LIMIT = 256
 
 type Timestamp struct {
-	FirstStep    Step
+	FirstStep    *Step
 	Attestations []attestation.Attestation
 }
 
@@ -24,19 +24,19 @@ type StepData interface {
 type Step struct {
 	Data   StepData
 	Output []byte
-	Next   []Step
+	Next   []*Step
 }
 
-func (ts *Timestamp) DecodeStep(ctx context.Context, r io.Reader, input []byte, currentTag *byte) (Step, error) {
+func (ts *Timestamp) DecodeStep(ctx context.Context, r io.Reader, input []byte, currentTag *byte) (*Step, error) {
 	if currentTag == nil {
 		t, err := tag.GetByte(r)
 		if err != nil {
-			return Step{}, err
+			return nil, err
 		}
 		currentTag = &t
 	}
 
-	next := []Step{}
+	next := []*Step{}
 
 	recursive := func(i []byte, t *byte) error {
 		step, err := ts.DecodeStep(ctx, r, i, t)
@@ -57,41 +57,41 @@ func (ts *Timestamp) DecodeStep(ctx context.Context, r io.Reader, input []byte, 
 	case tag.Attestation:
 		a, err := attestation.Decode(r, input)
 		if err != nil {
-			return Step{}, err
+			return nil, err
 		}
 		ts.Attestations = append(ts.Attestations, a)
-		return Step{Data: a}, nil
+		return &Step{Data: a}, nil
 
 	case tag.Fork:
 		nextTag := byte(tag.Fork)
 		for nextTag == tag.Fork {
 			err := recursive(input, nil)
 			if err != nil {
-				return Step{}, err
+				return nil, err
 			}
 
 			nextTag, err = tag.GetByte(r)
 			if err != nil {
-				return Step{}, err
+				return nil, err
 			}
 		}
 		err := recursive(input, &nextTag)
 		if err != nil {
-			return Step{}, err
+			return nil, err
 		}
-		return Step{Output: input, Next: next}, nil
+		return &Step{Output: input, Next: next}, nil
 
 	default:
 		op, err := operation.Decode(r, *currentTag)
 		if err != nil {
-			return Step{}, err
+			return nil, err
 		}
 		output := op.Exec(input)
 		err = recursive(output, nil)
 		if err != nil {
-			return Step{}, err
+			return nil, err
 		}
-		return Step{Data: op, Output: output, Next: next}, nil
+		return &Step{Data: op, Output: output, Next: next}, nil
 	}
 }
 
@@ -106,7 +106,11 @@ func (t *Timestamp) Decode(ctx context.Context, r io.Reader, startDigest []byte)
 	return nil
 }
 
-func EncodeRecursive(s Step, w io.Writer) error {
+func EncodeRecursive(s *Step, w io.Writer) error {
+	if s == nil {
+		return nil
+	}
+
 	_, err := w.Write(s.Data.Encode())
 	if err != nil {
 		return err

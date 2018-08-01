@@ -12,7 +12,7 @@ import (
 )
 
 func Information(w io.Writer, t *Timestamp) error {
-	return DisplayStep(w, t, &t.FirstStep)
+	return DisplayStep(w, t, t.FirstStep)
 }
 
 func DisplayStep(w io.Writer, t *Timestamp, step *Step) error {
@@ -35,7 +35,7 @@ func DisplayStep(w io.Writer, t *Timestamp, step *Step) error {
 	}
 
 	for i := range step.Next {
-		err := DisplayStep(w, t, &step.Next[i])
+		err := DisplayStep(w, t, step.Next[i])
 		if err != nil {
 			return err
 		}
