@@ -22,7 +22,7 @@ func main() {
 
 	var err error
 	switch os.Args[1] {
-	case "infos":
+	case "info":
 		err = infos(os.Args[2])
 	case "stamp":
 		err = stamp(os.Args[2])
