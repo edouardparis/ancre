@@ -22,8 +22,13 @@ func DisplayStep(w io.Writer, t *Timestamp, step *Step) error {
 			return errors.New("step is not an attestion")
 		}
 		return DisplayAttestation(w, attestation)
-	} else {
+	} else if step.Data != nil {
 		err := DisplayOperation(w, step)
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err := w.Write([]byte("(fork two ways)\n"))
 		if err != nil {
 			return err
 		}
