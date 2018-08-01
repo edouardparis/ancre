@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/ulule/ancre/format"
 	"github.com/ulule/ancre/operation"
 	"github.com/ulule/ancre/tag"
 	"github.com/ulule/ancre/timestamp"
@@ -36,7 +37,7 @@ func (t *TimestampFile) Infos(w io.Writer) error {
 		return err
 	}
 
-	return timestamp.Information(w, t.Timestamp)
+	return timestamp.Encode(t.Timestamp, format.ToTEXT(w))
 }
 
 func NewTimeStampFile(digest []byte, op *operation.Op) *TimestampFile {
@@ -96,7 +97,7 @@ func TimestampFileToWriter(t *TimestampFile, w io.Writer) error {
 	if err != nil {
 		return err
 	}
-	return t.Timestamp.Encode(w)
+	return timestamp.Encode(t.Timestamp, format.ToOTS(w))
 }
 
 // ReadMagic reads the magic bytes and return a error
