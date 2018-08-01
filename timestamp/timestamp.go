@@ -112,6 +112,15 @@ func EncodeRecursive(s Step, w io.Writer) error {
 		return err
 	}
 
+	if len(s.Next) > 1 {
+		for i := 0; i < len(s.Next); i++ {
+			_, err := w.Write([]byte{tag.Fork})
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	for i := range s.Next {
 		err := EncodeRecursive(s.Next[i], w)
 		if err != nil {
