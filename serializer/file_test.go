@@ -27,17 +27,12 @@ func TestTimestampFileFromReader(t *testing.T) {
 	}
 
 	firstStep := file.Timestamp.FirstStep
-	if !firstStep.Data.Match([]byte{tag.Ripemd160}) {
+	if !firstStep.Match([]byte{tag.Ripemd160}) {
 		t.Errorf("Expected firstStep match tag.Ripemd160")
 	}
 
-	if len(file.Timestamp.FirstStep.Next) == 0 {
+	if !file.Timestamp.FirstStep.HasNext() {
 		t.Errorf("Expected len firstStep.Next != 0")
-	}
-
-	secondStep := file.Timestamp.FirstStep.Next[0]
-	if !secondStep.Data.Match([]byte{tag.Prepend}) {
-		t.Errorf("Expected firstStep match tag.append")
 	}
 }
 

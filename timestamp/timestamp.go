@@ -20,6 +20,7 @@ type Step interface {
 	StepData
 	GetData() StepData
 	GetOutput() []byte
+	HasNext() bool
 }
 
 type StepData interface {
@@ -28,25 +29,29 @@ type StepData interface {
 }
 
 type step struct {
-	Data   StepData
-	Output []byte
-	Next   []*step
+	data   StepData
+	output []byte
+	next   []*step
 }
 
 func (s step) GetData() StepData {
-	return s.Data
+	return s.data
 }
 
 func (s step) GetOutput() []byte {
-	return s.Output
+	return s.output
 }
 
 func (s step) Encode() []byte {
-	return s.Data.Encode()
+	return s.data.Encode()
 }
 
 func (s step) Match(b []byte) bool {
-	return s.Data.Match(b)
+	return s.data.Match(b)
+}
+
+func (s step) HasNext() bool {
+	return len(s.next) > 0
 }
 
 func (ts *Timestamp) DecodeStep(ctx context.Context, r io.Reader, input []byte, currentTag *byte) (*step, error) {
@@ -82,7 +87,7 @@ func (ts *Timestamp) DecodeStep(ctx context.Context, r io.Reader, input []byte, 
 			return nil, err
 		}
 		ts.Attestations = append(ts.Attestations, a)
-		return &step{Data: a}, nil
+		return &step{data: a}, nil
 
 	case tag.Fork:
 		nextTag := byte(tag.Fork)
@@ -101,7 +106,7 @@ func (ts *Timestamp) DecodeStep(ctx context.Context, r io.Reader, input []byte, 
 		if err != nil {
 			return nil, err
 		}
-		return &step{Output: input, Data: operation.Fork{}, Next: next}, nil
+		return &step{output: input, data: operation.Fork{}, next: next}, nil
 
 	default:
 		op, err := operation.Decode(r, *currentTag)
@@ -113,7 +118,7 @@ func (ts *Timestamp) DecodeStep(ctx context.Context, r io.Reader, input []byte, 
 		if err != nil {
 			return nil, err
 		}
-		return &step{Data: op, Output: output, Next: next}, nil
+		return &step{data: op, output: output, next: next}, nil
 	}
 }
 
@@ -138,8 +143,8 @@ func encode(s *step, fn func(s Step) error) error {
 		return err
 	}
 
-	for i := range s.Next {
-		err = encode(s.Next[i], fn)
+	for i := range s.next {
+		err = encode(s.next[i], fn)
 	}
 	return nil
 }
