@@ -23,7 +23,7 @@ func ToTEXT(w io.Writer) timestamp.Encoder {
 			if !ok {
 				return errors.New("step is not an attestion")
 			}
-			return DisplayAttestation(w, attest)
+			return attestationToText(w, attest)
 		} else if s.Match([]byte{tag.Fork}) {
 			_, err := w.Write([]byte("(fork two ways)\n"))
 			if err != nil {
@@ -34,7 +34,7 @@ func ToTEXT(w io.Writer) timestamp.Encoder {
 			if !ok {
 				return errors.New("step is not an operation")
 			}
-			err := DisplayOperation(w, op, s.Output())
+			err := operationToText(w, op, s.Output())
 			if err != nil {
 				return err
 			}
@@ -43,7 +43,7 @@ func ToTEXT(w io.Writer) timestamp.Encoder {
 	}
 }
 
-func DisplayOperation(w io.Writer, op operation.Operation, output []byte) error {
+func operationToText(w io.Writer, op operation.Operation, output []byte) error {
 	_, err := w.Write([]byte("execute "))
 	if err != nil {
 		return err
@@ -80,7 +80,7 @@ func DisplayOperation(w io.Writer, op operation.Operation, output []byte) error 
 	return err
 }
 
-func DisplayAttestation(w io.Writer, attest attestation.Attestation) error {
+func attestationToText(w io.Writer, attest attestation.Attestation) error {
 	_, err := w.Write([]byte("attested by :\n"))
 	if err != nil {
 		return err
