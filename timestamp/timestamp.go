@@ -18,8 +18,8 @@ type Timestamp struct {
 
 type Step interface {
 	StepData
-	GetData() StepData
-	GetOutput() []byte
+	Data() StepData
+	Output() []byte
 	HasNext() bool
 }
 
@@ -34,11 +34,11 @@ type step struct {
 	next   []*step
 }
 
-func (s step) GetData() StepData {
+func (s step) Data() StepData {
 	return s.data
 }
 
-func (s step) GetOutput() []byte {
+func (s step) Output() []byte {
 	return s.output
 }
 

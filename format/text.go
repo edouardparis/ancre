@@ -18,8 +18,8 @@ func ToTEXT(w io.Writer) func(timestamp.Step) error {
 			return nil
 		}
 
-		if s.Match(attestation.BITCOIN_TAG) || s.Match(attestation.PENDING_TAG) {
-			attest, ok := s.GetData().(attestation.Attestation)
+		if !s.HasNext() {
+			attest, ok := s.Data().(attestation.Attestation)
 			if !ok {
 				return errors.New("step is not an attestion")
 			}
@@ -30,11 +30,11 @@ func ToTEXT(w io.Writer) func(timestamp.Step) error {
 				return err
 			}
 		} else {
-			op, ok := s.GetData().(operation.Operation)
+			op, ok := s.Data().(operation.Operation)
 			if !ok {
 				return errors.New("step is not an operation")
 			}
-			err := DisplayOperation(w, op, s.GetOutput())
+			err := DisplayOperation(w, op, s.Output())
 			if err != nil {
 				return err
 			}
