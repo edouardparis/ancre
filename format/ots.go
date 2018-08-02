@@ -6,8 +6,8 @@ import (
 	"github.com/ulule/ancre/timestamp"
 )
 
-func ToOTS(w io.Writer) func(timestamp.Step) error {
-	return func(s timestamp.Step) error {
+func ToOTS(w io.Writer) timestamp.Encoder {
+	return func(t *timestamp.Timestamp, s timestamp.Step) error {
 		if s == nil {
 			return nil
 		}

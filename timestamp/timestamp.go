@@ -133,18 +133,20 @@ func (t *Timestamp) Decode(ctx context.Context, r io.Reader, startDigest []byte)
 	return nil
 }
 
-func Encode(t *Timestamp, fn func(s Step) error) error {
-	return encode(t.FirstStep, fn)
+type Encoder func(t *Timestamp, s Step) error
+
+func Encode(t *Timestamp, fn Encoder) error {
+	return encode(t, t.FirstStep, fn)
 }
 
-func encode(s *step, fn func(s Step) error) error {
-	err := fn(s)
+func encode(t *Timestamp, s *step, fn Encoder) error {
+	err := fn(t, s)
 	if err != nil {
 		return err
 	}
 
 	for i := range s.next {
-		err = encode(s.next[i], fn)
+		err = encode(t, s.next[i], fn)
 	}
 	return nil
 }
