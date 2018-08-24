@@ -35,8 +35,12 @@ func main() {
 	os.Exit(1)
 }
 
-func infos(path string) error {
-	file, err := os.Open(path)
+func infos(filepath string) error {
+	if path.Ext(filepath) != ".ots" {
+		return fmt.Errorf("%s is not an ots file", filepath)
+	}
+
+	file, err := os.Open(filepath)
 	if err != nil {
 		return err
 	}
