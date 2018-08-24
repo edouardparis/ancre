@@ -150,3 +150,8 @@ func encode(t *Timestamp, s *step, fn Encoder) error {
 	}
 	return nil
 }
+
+// New returns a pointer to a new timestamp instance.
+func New() *Timestamp {
+	return &Timestamp{}
+}
