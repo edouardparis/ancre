@@ -9,7 +9,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/ulule/ancre/client"
+	"github.com/ulule/ancre/calendar/client"
 	"github.com/ulule/ancre/operation"
 	"github.com/ulule/ancre/serializer"
 )
