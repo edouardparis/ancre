@@ -11,22 +11,32 @@ func New() *ucli.App {
 	return &ucli.App{
 		Name:  "ancre",
 		Usage: "anchoring data in time",
+		Flags: []ucli.Flag{
+			&ucli.StringFlag{
+				Name:  "D",
+				Usage: "calendar host",
+			},
+		},
 		Commands: []*ucli.Command{
 			{
-				Name:  "info",
-				Usage: "display timestamp information of a given .ots file",
-				Action: func(c *ucli.Context) error {
-					return cmd.Info(c.Args().First())
-				},
+				Name:   "info",
+				Usage:  "display timestamp information of a given .ots file",
+				Action: info,
 			},
 			{
-				Name:  "stamp",
-				Usage: "stamp the given file",
-				Action: func(c *ucli.Context) error {
-					return cmd.Stamp(c.Args().First())
-				},
+				Name:   "stamp",
+				Usage:  "stamp the given file",
+				Action: stamp,
 			},
 		},
 	}
 
+}
+
+func info(c *ucli.Context) error {
+	return cmd.Info(c.Args().First())
+}
+
+func stamp(c *ucli.Context) error {
+	return cmd.Stamp(c.Args().First(), c.String("D"))
 }

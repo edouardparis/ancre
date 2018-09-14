@@ -16,7 +16,7 @@ import (
 
 // Stamp computes the hash of the given file and
 // creates a timestamp file with it.
-func Stamp(filepath string) error {
+func Stamp(filepath string, calendarURL string) error {
 	filename := path.Base(filepath)
 	file, err := os.Open(filepath)
 	if err != nil {
@@ -32,18 +32,17 @@ func Stamp(filepath string) error {
 
 	digest := hasher.Sum(nil)
 
-	calendar := client.NewRemoteCalendar("https://a.pool.opentimestamps.org")
-
+	calendar := client.NewCalendar(calendarURL)
 	fmt.Printf("Submitting Sha256 digest %s\n to %s",
 		hex.EncodeToString(digest), calendar.URL)
 
-	otsFile, err := os.Create(fmt.Sprintf("%s.ots", filename))
+	t := serializer.NewTimeStampFile(digest, operation.NewOpSha256())
+	err = calendar.Submit(context.Background(), t.Timestamp, digest)
 	if err != nil {
 		return err
 	}
 
-	t := serializer.NewTimeStampFile(digest, operation.NewOpSha256())
-	err = calendar.Submit(context.Background(), t.Timestamp, digest)
+	otsFile, err := os.Create(fmt.Sprintf("%s.ots", filename))
 	if err != nil {
 		return err
 	}

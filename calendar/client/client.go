@@ -9,15 +9,15 @@ import (
 	"github.com/ulule/ancre/timestamp"
 )
 
-// Remote calendar is an opentimestamp remote calendar
-type RemoteCalendar struct {
+// Calendar calendar is an opentimestamp remote calendar
+type Calendar struct {
 	URL string
 }
 
 // Submit submits the timestamp to the calendar
-func (rc RemoteCalendar) Submit(ctx context.Context, t *timestamp.Timestamp, digest []byte) error {
+func (cal Calendar) Submit(ctx context.Context, t *timestamp.Timestamp, digest []byte) error {
 	client := &http.Client{}
-	url := fmt.Sprintf("%s/digest", rc.URL)
+	url := fmt.Sprintf("%s/digest", cal.URL)
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(digest))
 	if err != nil {
 		return err
@@ -30,13 +30,13 @@ func (rc RemoteCalendar) Submit(ctx context.Context, t *timestamp.Timestamp, dig
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("fail to submit to %s", rc.URL)
+		return fmt.Errorf("fail to submit to %s", cal.URL)
 	}
 
 	return t.Decode(ctx, resp.Body, digest)
 }
 
-// NewRemoteCalendar returns a new remote calendar.
-func NewRemoteCalendar(url string) *RemoteCalendar {
-	return &RemoteCalendar{URL: url}
+// NewCalendar returns a new remote calendar.
+func NewCalendar(url string) *Calendar {
+	return &Calendar{URL: url}
 }
