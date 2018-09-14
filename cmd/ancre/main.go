@@ -9,33 +9,39 @@ import (
 	"os"
 	"path"
 
+	cli "gopkg.in/urfave/cli.v2"
+
 	"github.com/ulule/ancre/client"
 	"github.com/ulule/ancre/operation"
 	"github.com/ulule/ancre/serializer"
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("list or count subcommand is required")
-		os.Exit(1)
+	app := &cli.App{
+		Name:  "ancre",
+		Usage: "anchoring data in time",
+		Commands: []*cli.Command{
+			{
+				Name:  "info",
+				Usage: "display timestamp information of a given .ots file",
+				Action: func(c *cli.Context) error {
+					return info(c.Args().First())
+				},
+			},
+			{
+				Name:  "stamp",
+				Usage: "stamp the given file",
+				Action: func(c *cli.Context) error {
+					return stamp(c.Args().First())
+				},
+			},
+		},
 	}
 
-	var err error
-	switch os.Args[1] {
-	case "info":
-		err = infos(os.Args[2])
-	case "stamp":
-		err = stamp(os.Args[2])
-	case "help":
-		fmt.Println("list of subcommands: infos, stamp")
-	}
-	if err != nil {
-		fmt.Println(err)
-	}
-	os.Exit(1)
+	app.Run(os.Args)
 }
 
-func infos(filepath string) error {
+func info(filepath string) error {
 	if path.Ext(filepath) != ".ots" {
 		return fmt.Errorf("%s is not an ots file", filepath)
 	}
