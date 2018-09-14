@@ -1,5 +1,7 @@
 # Ancre :anchor:
 
+![License][license-img]
+
 A golang implementation of [OpenTimestamps](https://opentimestamps.org/) client
 
 Ancre anchors checksums in time.
@@ -18,3 +20,4 @@ go install ./...
 ```bash
 go test ./...
 ```
+[license-img]: https://img.shields.io/badge/license-MIT-blue.svg
