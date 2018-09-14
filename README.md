@@ -8,14 +8,13 @@ Ancre anchors checksums in time.
 
 Install [the go programming language](https://golang.org).
 
-Set the `GOPATH` environment variable.
-
-```bash
-export GOPATH=$HOME/go
-```
-
 ```bash
 go get github.com/ulule/ancre
-
+go install ./...
 ```
 
+## Test
+
+```bash
+go test ./...
+```
