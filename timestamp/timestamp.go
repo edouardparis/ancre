@@ -147,6 +147,9 @@ func encode(t *Timestamp, s *step, fn Encoder) error {
 
 	for i := range s.next {
 		err = encode(t, s.next[i], fn)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
