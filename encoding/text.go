@@ -1,4 +1,4 @@
-package format
+package encoding
 
 import (
 	"encoding/hex"
@@ -12,35 +12,33 @@ import (
 	"github.com/ulule/ancre/timestamp"
 )
 
-func ToTEXT(w io.Writer) timestamp.Encoder {
-	return func(t *timestamp.Timestamp, s *timestamp.Step) error {
-		if s == nil {
-			return nil
-		}
-
-		if !s.HasNext() {
-			attest, ok := s.Data.(attestation.Attestation)
-			if !ok {
-				return errors.New("step is not an attestion")
-			}
-			return attestationToText(w, attest)
-		} else if s.Match([]byte{tag.Fork}) {
-			_, err := w.Write([]byte("(fork two ways)\n"))
-			if err != nil {
-				return err
-			}
-		} else {
-			op, ok := s.Data.(operation.Operation)
-			if !ok {
-				return errors.New("step is not an operation")
-			}
-			err := operationToText(w, op, s.Output)
-			if err != nil {
-				return err
-			}
-		}
+func ToTEXT(w io.Writer, t *timestamp.Timestamp, s *timestamp.Step) error {
+	if s == nil {
 		return nil
 	}
+
+	if !s.HasNext() {
+		attest, ok := s.Data.(attestation.Attestation)
+		if !ok {
+			return errors.New("step is not an attestion")
+		}
+		return attestationToText(w, attest)
+	} else if s.Match([]byte{tag.Fork}) {
+		_, err := w.Write([]byte("(fork two ways)\n"))
+		if err != nil {
+			return err
+		}
+	} else {
+		op, ok := s.Data.(operation.Operation)
+		if !ok {
+			return errors.New("step is not an operation")
+		}
+		err := operationToText(w, op, s.Output)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func operationToText(w io.Writer, op operation.Operation, output []byte) error {

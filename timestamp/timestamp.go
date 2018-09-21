@@ -34,27 +34,6 @@ func (s Step) HasNext() bool {
 	return len(s.Next) > 0
 }
 
-type Encoder func(t *Timestamp, s *Step) error
-
-func Encode(t *Timestamp, fn Encoder) error {
-	return encode(t, t.FirstStep, fn)
-}
-
-func encode(t *Timestamp, s *Step, fn Encoder) error {
-	err := fn(t, s)
-	if err != nil {
-		return err
-	}
-
-	for i := range s.Next {
-		err = encode(t, s.Next[i], fn)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // New returns a pointer to a new timestamp instance.
 func New(firstStep *Step, attestations ...attestation.Attestation) *Timestamp {
 	return &Timestamp{FirstStep: firstStep, Attestations: attestations}
