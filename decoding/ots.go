@@ -80,7 +80,7 @@ func OTSDecodeStep(ctx context.Context, r io.Reader, input []byte, currentTag *b
 	}
 }
 
-func OTSDecodeTimestamp(ctx context.Context, r io.Reader, startDigest []byte) (*timestamp.Timestamp, error) {
+func FromOTS(ctx context.Context, r io.Reader, startDigest []byte) (*timestamp.Timestamp, error) {
 	var attestations []attestation.Attestation
 	firstStep, err := OTSDecodeStep(ctx, r, startDigest, nil, attestations)
 	if err != nil {

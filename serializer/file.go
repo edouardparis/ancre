@@ -69,7 +69,7 @@ func TimestampFileFromReader(r io.Reader) (*TimestampFile, error) {
 		return nil, err
 	}
 
-	t, err := decoding.OTSDecodeTimestamp(context.Background(), r, digest)
+	t, err := decoding.FromOTS(context.Background(), r, digest)
 	if err != nil {
 		return nil, err
 	}

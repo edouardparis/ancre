@@ -34,7 +34,7 @@ func (cal Calendar) Submit(ctx context.Context, digest []byte) (*timestamp.Times
 		return nil, fmt.Errorf("fail to submit to %s", cal.URL)
 	}
 
-	return decoding.OTSDecodeTimestamp(ctx, resp.Body, digest)
+	return decoding.FromOTS(ctx, resp.Body, digest)
 }
 
 // NewCalendar returns a new remote calendar.
