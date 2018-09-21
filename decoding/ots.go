@@ -65,7 +65,7 @@ func OTSDecodeStep(ctx context.Context, r io.Reader, input []byte, currentTag *b
 		if err != nil {
 			return nil, err
 		}
-		return &timestamp.Step{Output: input, Data: operation.Fork{}, Next: next}, nil
+		return &timestamp.Step{Output: input, Data: operation.NewFork(), Next: next}, nil
 
 	default:
 		op, err := OTSDecodeOperation(r, *currentTag)

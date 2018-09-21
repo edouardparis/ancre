@@ -15,6 +15,11 @@ import (
 // used to describe operation.
 const MAX_OP_LENGTH = 4096
 
+const (
+	Fork = iota + 1
+	Sha256
+)
+
 type Operation interface {
 	Encode() []byte
 	Match([]byte) bool
@@ -137,12 +142,8 @@ func readData(r io.Reader) ([]byte, error) {
 	return data, err
 }
 
-type Fork struct{}
-
-func (f Fork) Match(b []byte) bool {
-	return bytes.Equal(b, []byte{tag.Fork})
-}
-
-func (f Fork) Encode() []byte {
-	return []byte{tag.Fork}
+func NewFork() *Op {
+	return &Op{[]byte{tag.Fork}, 0, func(input []byte) []byte {
+		return input
+	}}
 }
