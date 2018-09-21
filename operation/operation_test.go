@@ -5,32 +5,26 @@ import (
 	"encoding/hex"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/ulule/ancre/tag"
 )
 
 func TestNewOpAppend(t *testing.T) {
+	is := assert.New(t)
+
 	b, err := hex.DecodeString(`f00688ac00000000`)
-	if err != nil {
-		t.Errorf("Expected no error: \n %s", err.Error())
-	}
+	is.NoError(err)
 
 	r := bytes.NewReader(b)
 
 	ta, err := tag.GetByte(r)
-	if err != nil {
-		t.Errorf("Expected no error: \n %s", err.Error())
-	}
+	is.NoError(err)
 
-	if ta != tag.Append {
-		t.Errorf("Expected equal tags")
-	}
+	is.Equal(ta, tag.Append)
 
 	op, err := NewOpAppend(r)
-	if err != nil {
-		t.Errorf("Expected no error: \n %s", err.Error())
-	}
+	is.NoError(err)
 
-	if !bytes.Equal(b, op.Tag) {
-		t.Errorf("Expected equal tags")
-	}
+	is.True(bytes.Equal(b, op.Tag))
 }
