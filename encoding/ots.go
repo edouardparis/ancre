@@ -31,7 +31,7 @@ func OTSEncodeStep(w io.Writer, s *timestamp.Step) error {
 		t = append(t, tag.Fork)
 	} else if s.Match(operation.Sha256) {
 		t = append(t, tag.Sha256)
-	} else if s.Match(operation.Sha256) {
+	} else if s.Match(operation.Ripemd160) {
 		t = append(t, tag.Ripemd160)
 	} else if s.Match(operation.Prepend) || s.Match(operation.Append) {
 		return otsEncodeBinaryOperation(w, s)
