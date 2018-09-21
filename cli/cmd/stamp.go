@@ -10,13 +10,15 @@ import (
 	"path"
 
 	"github.com/ulule/ancre/calendar/client"
+	"github.com/ulule/ancre/logging"
 	"github.com/ulule/ancre/operation"
 	"github.com/ulule/ancre/serializer"
 )
 
 // Stamp computes the hash of the given file and
 // creates a timestamp file with it.
-func Stamp(filepath string, calendarURL string) error {
+func Stamp(logger logging.Logger, filepath, output string, calendars []string) error {
+	logger.Info("opening file", logging.String("path", filepath))
 	filename := path.Base(filepath)
 	file, err := os.Open(filepath)
 	if err != nil {
@@ -32,17 +34,22 @@ func Stamp(filepath string, calendarURL string) error {
 
 	digest := hasher.Sum(nil)
 
-	calendar := client.NewCalendar(calendarURL)
-	fmt.Printf("Submitting Sha256 digest %s\n to %s",
-		hex.EncodeToString(digest), calendar.URL)
-
 	t := serializer.NewTimeStampFile(digest, operation.NewOpSha256())
-	err = calendar.Submit(context.Background(), t.Timestamp, digest)
-	if err != nil {
-		return err
+	for i := range calendars {
+		calendar := client.NewCalendar(calendars[i])
+		fmt.Printf("Submitting Sha256 digest %s\n to %s",
+			hex.EncodeToString(digest), calendar.URL)
+
+		err = calendar.Submit(context.Background(), t.Timestamp, digest)
+		if err != nil {
+			return err
+		}
 	}
 
-	otsFile, err := os.Create(fmt.Sprintf("%s.ots", filename))
+	if output == "" {
+		output = fmt.Sprintf("%s.ots", filename)
+	}
+	otsFile, err := os.Create(output)
 	if err != nil {
 		return err
 	}

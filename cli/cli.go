@@ -4,17 +4,23 @@ import (
 	ucli "gopkg.in/urfave/cli.v2"
 
 	"github.com/ulule/ancre/cli/cmd"
+	"github.com/ulule/ancre/logging"
 )
 
 // New creates a new cli app.
 func New() *ucli.App {
+	ucli.VersionFlag = &ucli.BoolFlag{
+		Name: "version", Aliases: []string{},
+		Usage: "print the version",
+	}
 	return &ucli.App{
-		Name:  "ancre",
-		Usage: "anchoring data in time",
+		Name:      "ancre",
+		Usage:     "anchoring data in time",
+		Copyright: "MIT License Copyright (c) 2018 Ulule",
 		Flags: []ucli.Flag{
-			&ucli.StringFlag{
-				Name:  "D",
-				Usage: "calendar host",
+			&ucli.BoolFlag{
+				Name: "verbose", Aliases: []string{"v"},
+				Usage: "print log output",
 			},
 		},
 		Commands: []*ucli.Command{
@@ -27,16 +33,48 @@ func New() *ucli.App {
 				Name:   "stamp",
 				Usage:  "stamp the given file",
 				Action: stamp,
+				Flags: []ucli.Flag{
+					&ucli.StringSliceFlag{
+						Name:  "c",
+						Value: &ucli.StringSlice{},
+						Usage: "list of calendar",
+					},
+					&ucli.StringFlag{
+						Name:  "o",
+						Value: "",
+						Usage: "output file, default is ./file.ots",
+					},
+				},
 			},
 		},
 	}
 
 }
 
+func setUpLogger(c *ucli.Context) (logging.Logger, error) {
+	return logging.NewCliLogger(&logging.Config{
+		Verbose: c.Bool("verbose"),
+	})
+}
+
 func info(c *ucli.Context) error {
-	return cmd.Info(c.Args().First())
+	logger, err := setUpLogger(c)
+	if err != nil {
+		return err
+	}
+
+	return cmd.Info(logger, c.Args().First())
 }
 
 func stamp(c *ucli.Context) error {
-	return cmd.Stamp(c.Args().First(), c.String("D"))
+	logger, err := setUpLogger(c)
+	if err != nil {
+		return err
+	}
+
+	return cmd.Stamp(
+		logger,
+		c.Args().First(),
+		c.String("o"),
+		c.StringSlice("c"))
 }
