@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"io"
 
+	"github.com/ulule/ancre/operation"
 	"github.com/ulule/ancre/tag"
 )
 
@@ -26,8 +27,12 @@ func (b Bitcoin) Encode() []byte {
 	return buf.Bytes()
 }
 
-func (b Bitcoin) Match(a []byte) bool {
-	return bytes.Equal(BITCOIN_TAG, a)
+func (b Bitcoin) Match(i int) bool {
+	return i == operation.Attestation
+}
+
+func (b Bitcoin) Exec(input []byte) []byte {
+	return input
 }
 
 func (b Bitcoin) Input() []byte {

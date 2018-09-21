@@ -1,9 +1,10 @@
 package attestation
 
 import (
-	"bytes"
 	"encoding/hex"
 	"io"
+
+	"github.com/ulule/ancre/operation"
 )
 
 type Unknow struct {
@@ -16,12 +17,16 @@ func (u Unknow) Encode() []byte {
 	return append(u.tag, u.data...)
 }
 
-func (u Unknow) Match(b []byte) bool {
-	return bytes.Equal(u.tag, b)
+func (u Unknow) Match(i int) bool {
+	return i == operation.Attestation
 }
 
 func (u Unknow) Input() []byte {
 	return u.input
+}
+
+func (u Unknow) Exec(input []byte) []byte {
+	return input
 }
 
 func (u Unknow) Data() map[string]interface{} {

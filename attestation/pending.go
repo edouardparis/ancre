@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 
+	"github.com/ulule/ancre/operation"
 	"github.com/ulule/ancre/tag"
 )
 
@@ -29,9 +30,14 @@ func (p Pending) Encode() []byte {
 }
 
 // Deser deserializes the Attestation
-func (p Pending) Match(b []byte) bool {
-	return bytes.Equal(PENDING_TAG, b)
+func (p Pending) Match(i int) bool {
+	return i == operation.Attestation
 }
+
+func (p Pending) Exec(input []byte) []byte {
+	return input
+}
+
 
 func (p Pending) Input() []byte {
 	return p.input

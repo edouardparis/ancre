@@ -15,9 +15,10 @@ var PENDING_TAG = []byte("\x83\xdf\xe3\x0d\x2e\xf9\x0c\x8e")
 
 type Attestation interface {
 	Encode() []byte
-	Match([]byte) bool
+	Match(int) bool
 	Input() []byte
 	Data() map[string]interface{}
+	Exec([]byte) []byte
 }
 
 func Decode(r io.Reader, input []byte) (Attestation, error) {

@@ -1,4 +1,4 @@
-package operation
+package decoding
 
 import (
 	"bytes"
@@ -6,11 +6,11 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
+	"github.com/ulule/ancre/operation"
 	"github.com/ulule/ancre/tag"
 )
 
-func TestNewOpAppend(t *testing.T) {
+func TestDecodeOpAppend(t *testing.T) {
 	is := assert.New(t)
 
 	b, err := hex.DecodeString(`f00688ac00000000`)
@@ -23,8 +23,8 @@ func TestNewOpAppend(t *testing.T) {
 
 	is.Equal(ta, tag.Append)
 
-	op, err := NewOpAppend(r)
+	op, err := DecodeOpAppend(r)
 	is.NoError(err)
 
-	is.True(bytes.Equal(b, op.Tag))
+	is.True(op.Match(operation.Append))
 }

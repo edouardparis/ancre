@@ -88,7 +88,7 @@ func TimestampFileToWriter(t *TimestampFile, w io.Writer) error {
 		return err
 	}
 
-	_, err = w.Write(t.DigestType.Encode())
+	_, err = w.Write([]byte{tag.Sha256})
 	if err != nil {
 		return err
 	}

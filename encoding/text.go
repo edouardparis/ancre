@@ -8,7 +8,6 @@ import (
 
 	"github.com/ulule/ancre/attestation"
 	"github.com/ulule/ancre/operation"
-	"github.com/ulule/ancre/tag"
 	"github.com/ulule/ancre/timestamp"
 )
 
@@ -23,7 +22,7 @@ func ToTEXT(w io.Writer, t *timestamp.Timestamp, s *timestamp.Step) error {
 			return errors.New("step is not an attestion")
 		}
 		return attestationToText(w, attest)
-	} else if s.Match([]byte{tag.Fork}) {
+	} else if s.Match(operation.Fork) {
 		_, err := w.Write([]byte("(fork two ways)\n"))
 		if err != nil {
 			return err
@@ -47,24 +46,24 @@ func operationToText(w io.Writer, op operation.Operation, output []byte) error {
 		return err
 	}
 
-	operations := map[byte]string{
-		tag.Sha256:    "SHA256()\n",
-		tag.Ripemd160: "RIPEMD160()\n",
+	operations := map[int]string{
+		operation.Sha256:    "SHA256()\n",
+		operation.Ripemd160: "RIPEMD160()\n",
 	}
 
 	for t := range operations {
-		if op.Match([]byte{t}) {
+		if op.Match(t) {
 			_, err = w.Write([]byte(operations[t]))
 			break
 		}
 	}
 
-	if op.Match([]byte{tag.Append}) {
+	if op.Match(operation.Append) {
 		argument := hex.EncodeToString(op.Exec(nil))
 		_, err = w.Write([]byte(fmt.Sprintf("Append(%s)\n", argument)))
 	}
 
-	if op.Match([]byte{tag.Prepend}) {
+	if op.Match(operation.Prepend) {
 		argument := hex.EncodeToString(op.Exec(nil))
 		_, err = w.Write([]byte(fmt.Sprintf("Prepend(%s)\n", argument)))
 	}

@@ -12,8 +12,8 @@ type Timestamp struct {
 }
 
 type StepData interface {
-	Match([]byte) bool
-	Encode() []byte
+	Match(int) bool
+	Exec([]byte) []byte
 }
 
 type Step struct {
@@ -22,12 +22,12 @@ type Step struct {
 	Next   []*Step
 }
 
-func (s Step) Encode() []byte {
-	return s.Data.Encode()
+func (s Step) Exec(input []byte) []byte {
+	return s.Data.Exec(input)
 }
 
-func (s Step) Match(b []byte) bool {
-	return s.Data.Match(b)
+func (s Step) Match(i int) bool {
+	return s.Data.Match(i)
 }
 
 func (s Step) HasNext() bool {
