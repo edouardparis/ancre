@@ -58,7 +58,7 @@ func TimestampFileFromReader(r io.Reader) (*TimestampFile, error) {
 		return nil, err
 	}
 
-	digestType, err := operation.DecodeOp(r)
+	digestType, err := decoding.OTSDecodeOperationFromReader(r)
 	if err != nil {
 		return nil, err
 	}

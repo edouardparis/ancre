@@ -2,6 +2,7 @@ package decoding
 
 import (
 	"context"
+	"errors"
 	"io"
 
 	"github.com/ulule/ancre/attestation"
@@ -67,7 +68,7 @@ func OTSDecodeStep(ctx context.Context, r io.Reader, input []byte, currentTag *b
 		return &timestamp.Step{Output: input, Data: operation.Fork{}, Next: next}, nil
 
 	default:
-		op, err := operation.Decode(r, *currentTag)
+		op, err := OTSDecodeOperation(r, *currentTag)
 		if err != nil {
 			return nil, err
 		}
@@ -78,6 +79,28 @@ func OTSDecodeStep(ctx context.Context, r io.Reader, input []byte, currentTag *b
 		}
 		return &timestamp.Step{Data: op, Output: output, Next: next}, nil
 	}
+}
+
+func OTSDecodeOperationFromReader(r io.Reader) (*operation.Op, error) {
+	t, err := tag.GetByte(r)
+	if err != nil {
+		return nil, err
+	}
+	return OTSDecodeOperation(r, t)
+}
+
+func OTSDecodeOperation(r io.Reader, t byte) (*operation.Op, error) {
+	switch t {
+	case tag.Sha256:
+		return operation.NewOpSha256(), nil
+	case tag.Ripemd160:
+		return operation.NewOpRipemd160(), nil
+	case tag.Append:
+		return operation.NewOpAppend(r)
+	case tag.Prepend:
+		return operation.NewOpPrepend(r)
+	}
+	return nil, errors.New("operation does not exist")
 }
 
 func FromOTS(ctx context.Context, r io.Reader, startDigest []byte) (*timestamp.Timestamp, error) {

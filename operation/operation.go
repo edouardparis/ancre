@@ -47,28 +47,6 @@ func (o Op) Match(b []byte) bool {
 	return len(o.Tag) != 0 && bytes.Equal(o.Tag[:1], b)
 }
 
-func DecodeOp(r io.Reader) (*Op, error) {
-	t, err := tag.GetByte(r)
-	if err != nil {
-		return nil, err
-	}
-	return Decode(r, t)
-}
-
-func Decode(r io.Reader, t byte) (*Op, error) {
-	switch t {
-	case tag.Sha256:
-		return NewOpSha256(), nil
-	case tag.Ripemd160:
-		return NewOpRipemd160(), nil
-	case tag.Append:
-		return NewOpAppend(r)
-	case tag.Prepend:
-		return NewOpPrepend(r)
-	}
-	return nil, errors.New("operation does not exist")
-}
-
 // NewOpSha256 is the sha256 operation checkSum.
 func NewOpSha256() *Op {
 	return &Op{[]byte{tag.Sha256}, 32, func(data []byte) []byte {
