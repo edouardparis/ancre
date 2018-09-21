@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/ulule/ancre/decoding"
 	"github.com/ulule/ancre/format"
 	"github.com/ulule/ancre/operation"
 	"github.com/ulule/ancre/tag"
@@ -68,8 +69,7 @@ func TimestampFileFromReader(r io.Reader) (*TimestampFile, error) {
 		return nil, err
 	}
 
-	t := &timestamp.Timestamp{}
-	err = t.Decode(context.Background(), r, digest)
+	t, err := decoding.OTSDecodeTimestamp(context.Background(), r, digest)
 	if err != nil {
 		return nil, err
 	}

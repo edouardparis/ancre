@@ -40,7 +40,7 @@ func Stamp(logger logging.Logger, filepath, output string, calendars []string) e
 		fmt.Printf("Submitting Sha256 digest %s\n to %s",
 			hex.EncodeToString(digest), calendar.URL)
 
-		err = calendar.Submit(context.Background(), t.Timestamp, digest)
+		t.Timestamp, err = calendar.Submit(context.Background(), digest)
 		if err != nil {
 			return err
 		}

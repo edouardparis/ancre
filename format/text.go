@@ -13,13 +13,13 @@ import (
 )
 
 func ToTEXT(w io.Writer) timestamp.Encoder {
-	return func(t *timestamp.Timestamp, s timestamp.Step) error {
+	return func(t *timestamp.Timestamp, s *timestamp.Step) error {
 		if s == nil {
 			return nil
 		}
 
 		if !s.HasNext() {
-			attest, ok := s.Data().(attestation.Attestation)
+			attest, ok := s.Data.(attestation.Attestation)
 			if !ok {
 				return errors.New("step is not an attestion")
 			}
@@ -30,11 +30,11 @@ func ToTEXT(w io.Writer) timestamp.Encoder {
 				return err
 			}
 		} else {
-			op, ok := s.Data().(operation.Operation)
+			op, ok := s.Data.(operation.Operation)
 			if !ok {
 				return errors.New("step is not an operation")
 			}
-			err := operationToText(w, op, s.Output())
+			err := operationToText(w, op, s.Output)
 			if err != nil {
 				return err
 			}

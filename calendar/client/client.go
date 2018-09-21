@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/ulule/ancre/decoding"
 	"github.com/ulule/ancre/timestamp"
 )
 
@@ -15,25 +16,25 @@ type Calendar struct {
 }
 
 // Submit submits the timestamp to the calendar
-func (cal Calendar) Submit(ctx context.Context, t *timestamp.Timestamp, digest []byte) error {
+func (cal Calendar) Submit(ctx context.Context, digest []byte) (*timestamp.Timestamp, error) {
 	client := &http.Client{}
 	url := fmt.Sprintf("%s/digest", cal.URL)
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(digest))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("fail to submit to %s", cal.URL)
+		return nil, fmt.Errorf("fail to submit to %s", cal.URL)
 	}
 
-	return t.Decode(ctx, resp.Body, digest)
+	return decoding.OTSDecodeTimestamp(ctx, resp.Body, digest)
 }
 
 // NewCalendar returns a new remote calendar.

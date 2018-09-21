@@ -7,7 +7,7 @@ import (
 )
 
 func ToOTS(w io.Writer) timestamp.Encoder {
-	return func(t *timestamp.Timestamp, s timestamp.Step) error {
+	return func(t *timestamp.Timestamp, s *timestamp.Step) error {
 		if s == nil {
 			return nil
 		}
