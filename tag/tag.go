@@ -17,6 +17,9 @@ const (
 	Fork        = byte(0xff)
 )
 
+var BITCOIN_TAG = []byte("\x05\x88\x96\x0d\x73\xd7\x19\x01")
+var PENDING_TAG = []byte("\x83\xdf\xe3\x0d\x2e\xf9\x0c\x8e")
+
 // GetByte return one byte from io.Reader
 func GetByte(r io.Reader) (byte, error) {
 	t := make([]byte, 1)

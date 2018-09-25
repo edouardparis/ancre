@@ -17,7 +17,7 @@ type Bitcoin struct {
 func (b Bitcoin) Encode() []byte {
 	buf := new(bytes.Buffer)
 	buf.Write([]byte{tag.Attestation})
-	buf.Write(BITCOIN_TAG)
+	buf.Write(tag.BITCOIN_TAG)
 
 	tmp := new(bytes.Buffer)
 	n, _ := tag.WriteUint64(tmp, b.height)

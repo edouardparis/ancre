@@ -10,9 +10,6 @@ import (
 const ATTESTATION_SIZE_TAG = 8
 const URI_MAX_LENGTH = 1000
 
-var BITCOIN_TAG = []byte("\x05\x88\x96\x0d\x73\xd7\x19\x01")
-var PENDING_TAG = []byte("\x83\xdf\xe3\x0d\x2e\xf9\x0c\x8e")
-
 type Attestation interface {
 	Encode() []byte
 	Match(int) bool
@@ -33,9 +30,9 @@ func Decode(r io.Reader, input []byte) (Attestation, error) {
 		return nil, err
 	}
 
-	if bytes.Equal(t, BITCOIN_TAG) {
+	if bytes.Equal(t, tag.BITCOIN_TAG) {
 		return NewAttestBitcoin(r, input)
-	} else if bytes.Equal(t, PENDING_TAG) {
+	} else if bytes.Equal(t, tag.PENDING_TAG) {
 		return NewAttestPending(r, input)
 	}
 

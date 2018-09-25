@@ -19,7 +19,7 @@ type Pending struct {
 func (p Pending) Encode() []byte {
 	buf := new(bytes.Buffer)
 	buf.Write([]byte{tag.Attestation})
-	buf.Write(BITCOIN_TAG)
+	buf.Write(tag.PENDING_TAG)
 
 	tmp := new(bytes.Buffer)
 	n, _ := tmp.WriteString(p.uri)
@@ -37,7 +37,6 @@ func (p Pending) Match(i int) bool {
 func (p Pending) Exec(input []byte) []byte {
 	return input
 }
-
 
 func (p Pending) Input() []byte {
 	return p.input
