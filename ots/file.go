@@ -21,7 +21,6 @@ var VERSION = uint64(1)
 
 // TimestampFile is a info file.
 type TimestampFile struct {
-	Digest     []byte
 	DigestType *operation.Op
 	Timestamp  *timestamp.Timestamp
 }
@@ -29,7 +28,7 @@ type TimestampFile struct {
 // Infos is the TimestampFile func for displaying Info
 func (t *TimestampFile) Infos(w io.Writer) error {
 	digestInfo := []byte(fmt.Sprintf("%s\n",
-		hex.EncodeToString(t.Digest),
+		hex.EncodeToString(t.Timestamp.Digest),
 	))
 	_, err := w.Write(digestInfo)
 	if err != nil {
@@ -40,8 +39,8 @@ func (t *TimestampFile) Infos(w io.Writer) error {
 }
 
 func NewTimeStampFile(digest []byte, op *operation.Op) *TimestampFile {
-	t := &timestamp.Timestamp{}
-	return &TimestampFile{Digest: digest, DigestType: op, Timestamp: t}
+	t := &timestamp.Timestamp{Digest: digest}
+	return &TimestampFile{DigestType: op, Timestamp: t}
 }
 
 // TimestampFileFromReader creates TimestampFile from io reader.
@@ -72,7 +71,7 @@ func TimestampFileFromReader(r io.Reader) (*TimestampFile, error) {
 		return nil, err
 	}
 
-	return &TimestampFile{Timestamp: t, DigestType: digestType, Digest: digest}, nil
+	return &TimestampFile{Timestamp: t, DigestType: digestType}, nil
 }
 
 func TimestampFileToWriter(t *TimestampFile, w io.Writer) error {
@@ -91,7 +90,7 @@ func TimestampFileToWriter(t *TimestampFile, w io.Writer) error {
 		return err
 	}
 
-	_, err = w.Write(t.Digest)
+	_, err = w.Write(t.Timestamp.Digest)
 	if err != nil {
 		return err
 	}

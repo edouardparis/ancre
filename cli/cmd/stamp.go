@@ -37,10 +37,15 @@ func Stamp(logger logging.Logger, filepath, output string, calendars []string) e
 	t := ots.NewTimeStampFile(digest, operation.NewOpSha256())
 	for i := range calendars {
 		calendar := client.NewCalendar(calendars[i])
-		fmt.Printf("Submitting Sha256 digest %s\n to %s",
-			hex.EncodeToString(digest), calendar.URL)
+		logger.Info("Submitting to calendar",
+			logging.String("url", calendar.URL),
+			logging.String("digest", hex.EncodeToString(digest)))
 
-		t.Timestamp, err = calendar.Submit(context.Background(), digest)
+		ts, err := calendar.Submit(context.Background(), digest)
+		if err != nil {
+			return err
+		}
+		err = t.Timestamp.Merge(ts)
 		if err != nil {
 			return err
 		}

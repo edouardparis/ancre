@@ -72,9 +72,19 @@ func stamp(c *ucli.Context) error {
 		return err
 	}
 
+	calendars := c.StringSlice("c")
+	if len(calendars) == 0 {
+		calendars = []string{
+			"https://a.pool.opentimestamps.org",
+			"https://b.pool.opentimestamps.org",
+			"https://a.pool.eternitywall.com",
+			"https://ots.btc.catallaxy.com",
+		}
+	}
+
 	return cmd.Stamp(
 		logger,
 		c.Args().First(),
 		c.String("o"),
-		c.StringSlice("c"))
+		calendars)
 }

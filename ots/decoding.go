@@ -207,5 +207,5 @@ func Decode(ctx context.Context, r io.Reader, startDigest []byte) (*timestamp.Ti
 	if err != nil {
 		return nil, err
 	}
-	return timestamp.New(firstStep, attestations...), nil
+	return timestamp.New(startDigest, firstStep, attestations...), nil
 }
