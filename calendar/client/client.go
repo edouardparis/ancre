@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ulule/ancre/decoding"
+	"github.com/ulule/ancre/ots"
 	"github.com/ulule/ancre/timestamp"
 )
 
@@ -34,7 +34,7 @@ func (cal Calendar) Submit(ctx context.Context, digest []byte) (*timestamp.Times
 		return nil, fmt.Errorf("fail to submit to %s", cal.URL)
 	}
 
-	return decoding.FromOTS(ctx, resp.Body, digest)
+	return ots.Decode(ctx, resp.Body, digest)
 }
 
 // NewCalendar returns a new remote calendar.

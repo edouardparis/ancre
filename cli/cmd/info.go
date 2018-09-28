@@ -6,7 +6,7 @@ import (
 	"path"
 
 	"github.com/ulule/ancre/logging"
-	"github.com/ulule/ancre/serializer"
+	"github.com/ulule/ancre/ots"
 )
 
 // Info open the given file and display information.
@@ -22,10 +22,10 @@ func Info(logger logging.Logger, filepath string) error {
 	}
 	defer file.Close()
 
-	ots, err := serializer.TimestampFileFromReader(file)
+	ts, err := ots.TimestampFileFromReader(file)
 	if err != nil {
 		return err
 	}
 
-	return ots.Infos(os.Stdout)
+	return ts.Infos(os.Stdout)
 }

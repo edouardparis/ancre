@@ -12,7 +12,7 @@ import (
 	"github.com/ulule/ancre/calendar/client"
 	"github.com/ulule/ancre/logging"
 	"github.com/ulule/ancre/operation"
-	"github.com/ulule/ancre/serializer"
+	"github.com/ulule/ancre/ots"
 )
 
 // Stamp computes the hash of the given file and
@@ -34,7 +34,7 @@ func Stamp(logger logging.Logger, filepath, output string, calendars []string) e
 
 	digest := hasher.Sum(nil)
 
-	t := serializer.NewTimeStampFile(digest, operation.NewOpSha256())
+	t := ots.NewTimeStampFile(digest, operation.NewOpSha256())
 	for i := range calendars {
 		calendar := client.NewCalendar(calendars[i])
 		fmt.Printf("Submitting Sha256 digest %s\n to %s",
@@ -54,5 +54,5 @@ func Stamp(logger logging.Logger, filepath, output string, calendars []string) e
 		return err
 	}
 
-	return serializer.TimestampFileToWriter(t, otsFile)
+	return ots.TimestampFileToWriter(t, otsFile)
 }

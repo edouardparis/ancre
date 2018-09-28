@@ -1,4 +1,4 @@
-package decoding
+package ots
 
 import (
 	"bytes"
@@ -7,7 +7,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/ulule/ancre/operation"
-	"github.com/ulule/ancre/tag"
 )
 
 func TestDecodeOpAppend(t *testing.T) {
@@ -18,10 +17,10 @@ func TestDecodeOpAppend(t *testing.T) {
 
 	r := bytes.NewReader(b)
 
-	ta, err := tag.GetByte(r)
+	ta, err := GetByte(r)
 	is.NoError(err)
 
-	is.Equal(ta, tag.Append)
+	is.Equal(ta, Append)
 
 	op, err := DecodeOpAppend(r)
 	is.NoError(err)

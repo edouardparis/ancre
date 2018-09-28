@@ -1,4 +1,4 @@
-package tag
+package ots
 
 import (
 	"errors"
@@ -15,6 +15,8 @@ const (
 	// Step
 	Attestation = byte(0x00)
 	Fork        = byte(0xff)
+
+	ATTESTATION_SIZE_TAG = 8
 )
 
 var BITCOIN_TAG = []byte("\x05\x88\x96\x0d\x73\xd7\x19\x01")

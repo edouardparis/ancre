@@ -1,4 +1,4 @@
-package serializer
+package ots
 
 import (
 	"bytes"
@@ -8,10 +8,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/ulule/ancre/decoding"
 	"github.com/ulule/ancre/encoding"
 	"github.com/ulule/ancre/operation"
-	"github.com/ulule/ancre/tag"
 	"github.com/ulule/ancre/timestamp"
 )
 
@@ -58,7 +56,7 @@ func TimestampFileFromReader(r io.Reader) (*TimestampFile, error) {
 		return nil, err
 	}
 
-	digestType, err := decoding.OTSDecodeOperationFromReader(r)
+	digestType, err := DecodeOperationFromReader(r)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +67,7 @@ func TimestampFileFromReader(r io.Reader) (*TimestampFile, error) {
 		return nil, err
 	}
 
-	t, err := decoding.FromOTS(context.Background(), r, digest)
+	t, err := Decode(context.Background(), r, digest)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +86,7 @@ func TimestampFileToWriter(t *TimestampFile, w io.Writer) error {
 		return err
 	}
 
-	_, err = w.Write([]byte{tag.Sha256})
+	_, err = w.Write([]byte{Sha256})
 	if err != nil {
 		return err
 	}
@@ -97,7 +95,7 @@ func TimestampFileToWriter(t *TimestampFile, w io.Writer) error {
 	if err != nil {
 		return err
 	}
-	return encoding.Encode(w, t.Timestamp, encoding.ToOTS)
+	return encoding.Encode(w, t.Timestamp, Encode)
 }
 
 // ReadMagic reads the magic bytes and return a error
@@ -125,7 +123,7 @@ func WriteMagic(w io.Writer) error {
 // ReadVersion reads the ots version and return a error
 // if it is not the case.
 func ReadVersion(r io.Reader) error {
-	version, err := tag.ReadUInt64(r)
+	version, err := ReadUInt64(r)
 	if err != nil {
 		return err
 	}

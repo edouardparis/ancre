@@ -1,25 +1,26 @@
-package decoding
+package ots
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"io"
 
 	"github.com/ulule/ancre/attestation"
 	"github.com/ulule/ancre/operation"
-	"github.com/ulule/ancre/tag"
 	"github.com/ulule/ancre/timestamp"
 )
 
 const RECURSION_LIMIT = 256
+const URI_MAX_LENGTH = 1000
 
 // MAX_OP_LENGTH is the maximum length of byte array
 // used to describe operation.
 const MAX_OP_LENGTH = 4096
 
-func OTSDecodeStep(ctx context.Context, r io.Reader, input []byte, currentTag *byte, attestations []attestation.Attestation) (*timestamp.Step, error) {
+func DecodeStep(ctx context.Context, r io.Reader, input []byte, currentTag *byte, attestations []attestation.Attestation) (*timestamp.Step, error) {
 	if currentTag == nil {
-		t, err := tag.GetByte(r)
+		t, err := GetByte(r)
 		if err != nil {
 			return nil, err
 		}
@@ -29,7 +30,7 @@ func OTSDecodeStep(ctx context.Context, r io.Reader, input []byte, currentTag *b
 	next := []*timestamp.Step{}
 
 	recursive := func(i []byte, t *byte) error {
-		step, err := OTSDecodeStep(ctx, r, i, t, attestations)
+		step, err := DecodeStep(ctx, r, i, t, attestations)
 		if err != nil {
 			if err != io.EOF {
 				return err
@@ -44,23 +45,23 @@ func OTSDecodeStep(ctx context.Context, r io.Reader, input []byte, currentTag *b
 	}
 
 	switch *currentTag {
-	case tag.Attestation:
-		a, err := attestation.Decode(r, input)
+	case Attestation:
+		a, err := DecodeAttestation(r, input)
 		if err != nil {
 			return nil, err
 		}
 		attestations = append(attestations, a)
 		return &timestamp.Step{Data: a}, nil
 
-	case tag.Fork:
-		nextTag := byte(tag.Fork)
-		for nextTag == tag.Fork {
+	case Fork:
+		nextTag := byte(Fork)
+		for nextTag == Fork {
 			err := recursive(input, nil)
 			if err != nil {
 				return nil, err
 			}
 
-			nextTag, err = tag.GetByte(r)
+			nextTag, err = GetByte(r)
 			if err != nil {
 				return nil, err
 			}
@@ -72,7 +73,7 @@ func OTSDecodeStep(ctx context.Context, r io.Reader, input []byte, currentTag *b
 		return &timestamp.Step{Output: input, Data: operation.NewFork(), Next: next}, nil
 
 	default:
-		op, err := OTSDecodeOperation(r, *currentTag)
+		op, err := DecodeOperation(r, *currentTag)
 		if err != nil {
 			return nil, err
 		}
@@ -85,23 +86,23 @@ func OTSDecodeStep(ctx context.Context, r io.Reader, input []byte, currentTag *b
 	}
 }
 
-func OTSDecodeOperationFromReader(r io.Reader) (*operation.Op, error) {
-	t, err := tag.GetByte(r)
+func DecodeOperationFromReader(r io.Reader) (*operation.Op, error) {
+	t, err := GetByte(r)
 	if err != nil {
 		return nil, err
 	}
-	return OTSDecodeOperation(r, t)
+	return DecodeOperation(r, t)
 }
 
-func OTSDecodeOperation(r io.Reader, t byte) (*operation.Op, error) {
+func DecodeOperation(r io.Reader, t byte) (*operation.Op, error) {
 	switch t {
-	case tag.Sha256:
+	case Sha256:
 		return operation.NewOpSha256(), nil
-	case tag.Ripemd160:
+	case Ripemd160:
 		return operation.NewOpRipemd160(), nil
-	case tag.Append:
+	case Append:
 		return DecodeOpAppend(r)
-	case tag.Prepend:
+	case Prepend:
 		return DecodeOpPrepend(r)
 	}
 	return nil, errors.New("operation does not exist")
@@ -127,8 +128,66 @@ func DecodeOpPrepend(r io.Reader) (*operation.Op, error) {
 	return operation.NewOpPrepend(data), nil
 }
 
+func DecodeAttestation(r io.Reader, input []byte) (attestation.Attestation, error) {
+	t := make([]byte, ATTESTATION_SIZE_TAG)
+	_, err := r.Read(t)
+	if err != nil {
+		return nil, err
+	}
+
+	len, err := ReadUInt64(r)
+	if err != nil {
+		return nil, err
+	}
+
+	if bytes.Equal(t, BITCOIN_TAG) {
+		return DecodeBitcoin(r, input)
+	} else if bytes.Equal(t, PENDING_TAG) {
+		return DecodePending(r, input)
+	}
+
+	return DecodeUnknow(r, t, len, input)
+}
+
+func DecodeBitcoin(r io.Reader, input []byte) (attestation.Attestation, error) {
+	height, err := ReadUInt64(r)
+	if err != nil {
+		return nil, err
+	}
+	return attestation.NewBitcoin(height, input), nil
+}
+
+func DecodePending(r io.Reader, input []byte) (attestation.Attestation, error) {
+	length, err := ReadUInt64(r)
+	if err != nil {
+		return nil, err
+	}
+
+	if length > URI_MAX_LENGTH {
+		return nil, errors.New("Attestation pending has a too loog uri length")
+	}
+
+	uri := make([]byte, length)
+	_, err = r.Read(uri)
+	if err != nil {
+		return nil, err
+	}
+
+	return attestation.NewPending(string(uri), input), nil
+}
+
+func DecodeUnknow(r io.Reader, tag []byte, len uint64, input []byte) (attestation.Attestation, error) {
+	data := make([]byte, len)
+	_, err := r.Read(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return attestation.NewUnknow(data, tag, input), nil
+}
+
 func readData(r io.Reader) ([]byte, error) {
-	n, err := tag.ReadUInt64(r)
+	n, err := ReadUInt64(r)
 	if err != nil {
 		return nil, err
 	}
@@ -142,9 +201,9 @@ func readData(r io.Reader) ([]byte, error) {
 	return data, err
 }
 
-func FromOTS(ctx context.Context, r io.Reader, startDigest []byte) (*timestamp.Timestamp, error) {
+func Decode(ctx context.Context, r io.Reader, startDigest []byte) (*timestamp.Timestamp, error) {
 	var attestations []attestation.Attestation
-	firstStep, err := OTSDecodeStep(ctx, r, startDigest, nil, attestations)
+	firstStep, err := DecodeStep(ctx, r, startDigest, nil, attestations)
 	if err != nil {
 		return nil, err
 	}

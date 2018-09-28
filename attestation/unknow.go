@@ -2,7 +2,6 @@ package attestation
 
 import (
 	"encoding/hex"
-	"io"
 
 	"github.com/ulule/ancre/operation"
 )
@@ -11,6 +10,14 @@ type Unknow struct {
 	tag   []byte
 	data  []byte
 	input []byte
+}
+
+func (u Unknow) Tag() []byte {
+	return u.tag
+}
+
+func (u Unknow) RawData() []byte {
+	return u.data
 }
 
 func (u Unknow) Encode() []byte {
@@ -37,12 +44,6 @@ func (u Unknow) Data() map[string]interface{} {
 	}
 }
 
-func NewAttestUnknow(r io.Reader, tag []byte, len uint64, input []byte) (Attestation, error) {
-	data := make([]byte, len)
-	_, err := r.Read(data)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Unknow{data: data, tag: tag, input: input}, nil
+func NewUnknow(data []byte, tag []byte, input []byte) *Unknow {
+	return &Unknow{data: data, tag: tag, input: input}
 }
