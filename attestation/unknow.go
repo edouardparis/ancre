@@ -20,10 +20,6 @@ func (u Unknow) RawData() []byte {
 	return u.data
 }
 
-func (u Unknow) Encode() []byte {
-	return append(u.tag, u.data...)
-}
-
 func (u Unknow) Match(i int) bool {
 	return i == operation.Attestation
 }
