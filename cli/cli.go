@@ -14,9 +14,10 @@ func New() *ucli.App {
 		Usage: "print the version",
 	}
 	return &ucli.App{
-		Name:      "ancre",
-		Usage:     "anchoring data in time",
-		Copyright: "MIT License Copyright (c) 2018 Ulule",
+		Name:                  "ancre",
+		Usage:                 "anchoring data in time",
+		Copyright:             "MIT License Copyright (c) 2018 Ulule",
+		EnableShellCompletion: true,
 		Flags: []ucli.Flag{
 			&ucli.BoolFlag{
 				Name: "verbose", Aliases: []string{"v"},
@@ -63,7 +64,11 @@ func info(c *ucli.Context) error {
 		return err
 	}
 
-	return cmd.Info(logger, c.Args().First())
+	err = cmd.Info(logger, c.Args().First())
+	if err != nil {
+		return ucli.Exit(err, 1)
+	}
+	return nil
 }
 
 func stamp(c *ucli.Context) error {
@@ -82,9 +87,10 @@ func stamp(c *ucli.Context) error {
 		}
 	}
 
-	return cmd.Stamp(
-		logger,
-		c.Args().First(),
-		c.String("o"),
-		calendars)
+	err = cmd.Stamp(logger, c.Args().First(),
+		c.String("o"), calendars)
+	if err != nil {
+		return ucli.Exit(err, 1)
+	}
+	return nil
 }
