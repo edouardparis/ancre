@@ -37,7 +37,6 @@ func New() *ucli.App {
 				Flags: []ucli.Flag{
 					&ucli.StringSliceFlag{
 						Name:  "c",
-						Value: &ucli.StringSlice{},
 						Usage: "list of calendar",
 					},
 					&ucli.StringFlag{
