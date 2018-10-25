@@ -18,7 +18,7 @@ const URI_MAX_LENGTH = 1000
 // used to describe operation.
 const MAX_OP_LENGTH = 4096
 
-func DecodeStep(ctx context.Context, r io.Reader, input []byte, currentTag *byte, attestations []attestation.Attestation) (*timestamp.Step, error) {
+func DecodeStep(ctx context.Context, r io.Reader, input []byte, currentTag *byte, attestations *[]attestation.Attestation) (*timestamp.Step, error) {
 	if currentTag == nil {
 		t, err := GetByte(r)
 		if err != nil {
@@ -50,7 +50,9 @@ func DecodeStep(ctx context.Context, r io.Reader, input []byte, currentTag *byte
 		if err != nil {
 			return nil, err
 		}
-		attestations = append(attestations, a)
+		if attestations != nil {
+			*attestations = append(*attestations, a)
+		}
 		return &timestamp.Step{Data: a}, nil
 
 	case Fork:
@@ -203,7 +205,7 @@ func readData(r io.Reader) ([]byte, error) {
 
 func Decode(ctx context.Context, r io.Reader, startDigest []byte) (*timestamp.Timestamp, error) {
 	var attestations []attestation.Attestation
-	firstStep, err := DecodeStep(ctx, r, startDigest, nil, attestations)
+	firstStep, err := DecodeStep(ctx, r, startDigest, nil, &attestations)
 	if err != nil {
 		return nil, err
 	}
