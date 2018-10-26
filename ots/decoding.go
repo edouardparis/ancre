@@ -174,12 +174,12 @@ func DecodePending(r io.Reader, input []byte) (attestation.Attestation, error) {
 	}
 
 	uri := make([]byte, length)
-	_, err = r.Read(uri)
+	n, err := r.Read(uri)
 	if err != nil && err != io.EOF {
 		return nil, err
 	}
 
-	return attestation.NewPending(string(uri), input), nil
+	return attestation.NewPending(string(uri[:n]), input), nil
 }
 
 func DecodeUnknow(r io.Reader, tag []byte, l uint64, input []byte) (attestation.Attestation, error) {
