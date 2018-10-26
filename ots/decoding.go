@@ -175,7 +175,7 @@ func DecodePending(r io.Reader, input []byte) (attestation.Attestation, error) {
 
 	uri := make([]byte, length)
 	_, err = r.Read(uri)
-	if err != nil {
+	if err != nil && err != io.EOF {
 		return nil, err
 	}
 
