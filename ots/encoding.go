@@ -106,11 +106,10 @@ func EncodePending(p *attestation.Pending) []byte {
 	buf.Write([]byte{Attestation})
 	buf.Write(PENDING_TAG)
 
-	tmp := new(bytes.Buffer)
-	n, _ := tmp.WriteString(p.Uri())
+	b := []byte(p.Uri())
 
-	WriteUint64(buf, uint64(n))
-	buf.Write(tmp.Bytes())
+	WriteUint64(buf, uint64(len(b)))
+	buf.Write(b)
 	return buf.Bytes()
 }
 
