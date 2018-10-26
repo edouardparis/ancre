@@ -75,6 +75,15 @@ func TimestampFileFromReader(r io.Reader) (*TimestampFile, error) {
 }
 
 func TimestampFileToWriter(t *TimestampFile, w io.Writer) error {
+	err := WriteHeader(w, t.Timestamp.Digest)
+	if err != nil {
+		return err
+	}
+
+	return encoding.Encode(w, t.Timestamp, Encode)
+}
+
+func WriteHeader(w io.Writer, digest []byte) error {
 	err := WriteMagic(w)
 	if err != nil {
 		return err
@@ -90,11 +99,11 @@ func TimestampFileToWriter(t *TimestampFile, w io.Writer) error {
 		return err
 	}
 
-	_, err = w.Write(t.Timestamp.Digest)
+	_, err = w.Write(digest)
 	if err != nil {
 		return err
 	}
-	return encoding.Encode(w, t.Timestamp, Encode)
+	return nil
 }
 
 // ReadMagic reads the magic bytes and return a error
