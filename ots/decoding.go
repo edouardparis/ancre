@@ -98,8 +98,12 @@ func DecodeOperationFromReader(r io.Reader) (*operation.Op, error) {
 
 func DecodeOperation(r io.Reader, t byte) (*operation.Op, error) {
 	switch t {
+	case Sha1:
+		return operation.NewOpSha1(), nil
 	case Sha256:
 		return operation.NewOpSha256(), nil
+	case Keccak256:
+		return operation.NewOpKeccak256(), nil
 	case Ripemd160:
 		return operation.NewOpRipemd160(), nil
 	case Append:

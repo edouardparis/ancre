@@ -7,7 +7,9 @@ import (
 
 const (
 	// Operations
+	Sha1      = byte(0x02)
 	Sha256    = byte(0x08)
+	Keccak256 = byte(0x67)
 	Ripemd160 = byte(0x03)
 	Append    = byte(0xf0)
 	Prepend   = byte(0xf1)

@@ -1,14 +1,18 @@
 package operation
 
 import (
+	"crypto/sha1"
 	"crypto/sha256"
 
 	"golang.org/x/crypto/ripemd160"
+	"golang.org/x/crypto/sha3"
 )
 
 const (
 	Fork = iota + 1
+	Sha1
 	Sha256
+	Keccak256
 	Ripemd160
 	Append
 	Prepend
@@ -41,10 +45,26 @@ func (o Op) Match(i int) bool {
 	return o.Kind == i
 }
 
+// NewOpSha1 is the sha1 operation checkSum.
+func NewOpSha1() *Op {
+	return &Op{Sha1, 20, func(data []byte) []byte {
+		b := sha1.Sum(data)
+		return b[:]
+	}}
+}
+
 // NewOpSha256 is the sha256 operation checkSum.
 func NewOpSha256() *Op {
 	return &Op{Sha256, 32, func(data []byte) []byte {
 		b := sha256.Sum256(data)
+		return b[:]
+	}}
+}
+
+// NewOpKeccak256 is the sha3.Sum256 operation checkSum.
+func NewOpKeccak256() *Op {
+	return &Op{Keccak256, 32, func(data []byte) []byte {
+		b := sha3.Sum256(data)
 		return b[:]
 	}}
 }
