@@ -11,12 +11,6 @@ import (
 
 const RECURSION_LIMIT = 256
 
-type Timestamp struct {
-	Digest       []byte
-	FirstStep    *Step
-	Attestations []attestation.Attestation
-}
-
 type StepData interface {
 	Match(int) bool
 	Exec([]byte) []byte
@@ -38,6 +32,19 @@ func (s Step) Match(i int) bool {
 
 func (s Step) HasNext() bool {
 	return len(s.Next) > 0
+}
+
+// Timstamp is the main structure representing a timestamp.
+type Timestamp struct {
+	Digest       []byte
+	FirstStep    *Step
+	Attestations []attestation.Attestation
+}
+
+// Sub creates a timestamp with the given digest and a subset
+// of the parent timestamp.
+func (t *Timestamp) Sub(digest []byte) (*Timestamp, error) {
+	return nil, nil
 }
 
 func (t *Timestamp) Merge(ts *Timestamp) error {
