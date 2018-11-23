@@ -18,20 +18,22 @@ func encode(w io.Writer, t *timestamp.Timestamp, s *timestamp.Step) error {
 		return nil
 	}
 
-	err := EncodeStep(w, s)
-	if err != nil {
-		return err
+	if !s.Match(operation.Fork) {
+		err := EncodeStep(w, s)
+		if err != nil {
+			return err
+		}
 	}
 
 	for i := range s.Next {
-		if s.Match(operation.Fork) && i > 0 {
+		if s.Match(operation.Fork) && i+1 != len(s.Next) {
 			_, err := w.Write([]byte{Fork})
 			if err != nil {
 				return err
 			}
 		}
 
-		err = encode(w, t, s.Next[i])
+		err := encode(w, t, s.Next[i])
 		if err != nil {
 			return err
 		}
@@ -46,9 +48,7 @@ func EncodeStep(w io.Writer, s *timestamp.Step) error {
 	}
 
 	t := []byte{}
-	if s.Match(operation.Fork) {
-		t = append(t, Fork)
-	} else if s.Match(operation.Sha256) {
+	if s.Match(operation.Sha256) {
 		t = append(t, Sha256)
 	} else if s.Match(operation.Ripemd160) {
 		t = append(t, Ripemd160)
