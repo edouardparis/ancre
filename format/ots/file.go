@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/ulule/ancre/encoding"
+	"github.com/ulule/ancre/format/text"
 	"github.com/ulule/ancre/operation"
 	"github.com/ulule/ancre/timestamp"
 )
@@ -35,7 +35,7 @@ func (t *TimestampFile) Infos(w io.Writer) error {
 		return err
 	}
 
-	return encoding.Encode(w, t.Timestamp, encoding.ToTEXT)
+	return text.Encode(w, t.Timestamp)
 }
 
 func NewTimeStampFile(digest []byte, op *operation.Op) *TimestampFile {
@@ -80,7 +80,7 @@ func TimestampFileToWriter(t *TimestampFile, w io.Writer) error {
 		return err
 	}
 
-	return encoding.Encode(w, t.Timestamp, Encode)
+	return Encode(w, t.Timestamp)
 }
 
 func WriteHeader(w io.Writer, digest []byte) error {

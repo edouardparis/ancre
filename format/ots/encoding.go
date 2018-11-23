@@ -9,7 +9,11 @@ import (
 	"github.com/ulule/ancre/timestamp"
 )
 
-func Encode(w io.Writer, t *timestamp.Timestamp, s *timestamp.Step) error {
+func Encode(w io.Writer, t *timestamp.Timestamp) error {
+	return encode(w, t, t.FirstStep)
+}
+
+func encode(w io.Writer, t *timestamp.Timestamp, s *timestamp.Step) error {
 	if s == nil {
 		return nil
 	}
@@ -18,6 +22,21 @@ func Encode(w io.Writer, t *timestamp.Timestamp, s *timestamp.Step) error {
 	if err != nil {
 		return err
 	}
+
+	for i := range s.Next {
+		if s.Match(operation.Fork) && i > 0 {
+			_, err := w.Write([]byte{Fork})
+			if err != nil {
+				return err
+			}
+		}
+
+		err = encode(w, t, s.Next[i])
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

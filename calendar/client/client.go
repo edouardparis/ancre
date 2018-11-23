@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ulule/ancre/ots"
+	"github.com/ulule/ancre/format/ots"
 	"github.com/ulule/ancre/timestamp"
 )
 

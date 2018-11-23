@@ -1,4 +1,4 @@
-package encoding
+package text
 
 import (
 	"encoding/hex"
@@ -11,7 +11,11 @@ import (
 	"github.com/ulule/ancre/timestamp"
 )
 
-func ToTEXT(w io.Writer, t *timestamp.Timestamp, s *timestamp.Step) error {
+func Encode(w io.Writer, t *timestamp.Timestamp) error {
+	return encode(w, t, t.FirstStep)
+}
+
+func encode(w io.Writer, t *timestamp.Timestamp, s *timestamp.Step) error {
 	if s == nil {
 		return nil
 	}
@@ -37,6 +41,14 @@ func ToTEXT(w io.Writer, t *timestamp.Timestamp, s *timestamp.Step) error {
 			return err
 		}
 	}
+
+	for i := range s.Next {
+		err := encode(w, t, s.Next[i])
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

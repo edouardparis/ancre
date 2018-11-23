@@ -10,9 +10,9 @@ import (
 	"path"
 
 	"github.com/ulule/ancre/calendar/client"
+	"github.com/ulule/ancre/format/ots"
 	"github.com/ulule/ancre/logging"
 	"github.com/ulule/ancre/operation"
-	"github.com/ulule/ancre/ots"
 )
 
 // Stamp computes the hash of the given file and
