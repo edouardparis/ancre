@@ -48,18 +48,26 @@ func (t *Timestamp) Sub(digest []byte) (*Timestamp, error) {
 }
 
 func (t *Timestamp) Merge(ts *Timestamp) error {
-	if ts == nil {
+	if ts == nil || ts.FirstStep == nil {
+		return nil
+	}
+
+	t.Attestations = append(t.Attestations, ts.Attestations...)
+
+	if t.FirstStep == nil {
+		t.FirstStep = ts.FirstStep
 		return nil
 	}
 
 	if bytes.Equal(t.Digest, ts.Digest) {
-		if t.FirstStep == nil {
-			t.FirstStep = ts.FirstStep
+		if t.FirstStep.Match(operation.Fork) {
+			t.FirstStep.Next = append(t.FirstStep.Next, ts.FirstStep)
 		} else if ts.FirstStep != nil {
+			firstStep := *t.FirstStep
 			t.FirstStep = &Step{
 				Output: t.Digest,
 				Data:   operation.NewFork(),
-				Next:   []*Step{t.FirstStep, ts.FirstStep},
+				Next:   []*Step{&firstStep, ts.FirstStep},
 			}
 		}
 	} else {
@@ -72,7 +80,6 @@ func (t *Timestamp) Merge(ts *Timestamp) error {
 		}
 	}
 
-	t.Attestations = append(t.Attestations, ts.Attestations...)
 	return nil
 }
 
