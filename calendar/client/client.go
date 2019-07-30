@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ulule/ancre/format/ots"
-	"github.com/ulule/ancre/timestamp"
+	"github.com/edouardparis/ancre/format/ots"
+	"github.com/edouardparis/ancre/timestamp"
 )
 
 // Calendar calendar is an opentimestamp remote calendar

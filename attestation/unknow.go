@@ -3,7 +3,7 @@ package attestation
 import (
 	"encoding/hex"
 
-	"github.com/ulule/ancre/operation"
+	"github.com/edouardparis/ancre/operation"
 )
 
 type Unknow struct {

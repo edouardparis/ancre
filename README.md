@@ -11,7 +11,7 @@ Ancre anchors checksums in time.
 Install [the go programming language](https://golang.org).
 
 ```bash
-go get github.com/ulule/ancre
+go get github.com/edouardparis/ancre
 go install ./...
 ```
 

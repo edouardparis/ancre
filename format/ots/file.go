@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/ulule/ancre/format/text"
-	"github.com/ulule/ancre/operation"
-	"github.com/ulule/ancre/timestamp"
+	"github.com/edouardparis/ancre/format/text"
+	"github.com/edouardparis/ancre/operation"
+	"github.com/edouardparis/ancre/timestamp"
 )
 
 // Header magic bytes

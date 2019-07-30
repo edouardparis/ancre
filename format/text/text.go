@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/ulule/ancre/attestation"
-	"github.com/ulule/ancre/operation"
-	"github.com/ulule/ancre/timestamp"
+	"github.com/edouardparis/ancre/attestation"
+	"github.com/edouardparis/ancre/operation"
+	"github.com/edouardparis/ancre/timestamp"
 )
 
 func Encode(w io.Writer, t *timestamp.Timestamp) error {

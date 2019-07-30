@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/ulule/ancre/cli"
+	"github.com/edouardparis/ancre/cli"
 )
 
 func main() {

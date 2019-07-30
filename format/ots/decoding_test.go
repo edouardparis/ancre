@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/ulule/ancre/operation"
+	"github.com/edouardparis/ancre/operation"
 )
 
 func TestDecodeOpAppend(t *testing.T) {

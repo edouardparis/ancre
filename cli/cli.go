@@ -3,8 +3,8 @@ package cli
 import (
 	ucli "gopkg.in/urfave/cli.v2"
 
-	"github.com/ulule/ancre/cli/cmd"
-	"github.com/ulule/ancre/logging"
+	"github.com/edouardparis/ancre/cli/cmd"
+	"github.com/edouardparis/ancre/logging"
 )
 
 // New creates a new cli app.
@@ -16,7 +16,7 @@ func New() *ucli.App {
 	return &ucli.App{
 		Name:                  "ancre",
 		Usage:                 "anchoring data in time",
-		Copyright:             "MIT License Copyright (c) 2018 Ulule",
+		Copyright:             "MIT License Copyright (c) 2018 EdouardParis",
 		EnableShellCompletion: true,
 		Flags: []ucli.Flag{
 			&ucli.BoolFlag{

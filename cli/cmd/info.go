@@ -5,8 +5,8 @@ import (
 	"os"
 	"path"
 
-	"github.com/ulule/ancre/format/ots"
-	"github.com/ulule/ancre/logging"
+	"github.com/edouardparis/ancre/format/ots"
+	"github.com/edouardparis/ancre/logging"
 )
 
 // Info open the given file and display information.
