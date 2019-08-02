@@ -21,3 +21,11 @@ go install ./...
 go test ./...
 ```
 [license-img]: https://img.shields.io/badge/license-MIT-blue.svg
+
+## Usage
+
+Only reading `.ots` file is good enough implemented
+
+```
+ancre info examples/hello-world.txt.ots
+```
